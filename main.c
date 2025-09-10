@@ -8,7 +8,7 @@
 void usage() {
     printf("Usage:\n");
     printf("./conv_test [--f infile] [--g kernel] [--o outfile]\n");
-    printf("./conv_test [--height H] [--width W] [--kH kh] [--kW kw] [--f infile] [--g kernel] [--o outfile]\n");
+    printf("./conv_test [--H height] [--W width] [--kH kh] [--kW kw] [--f infile] [--g kernel] [--o outfile]\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -22,10 +22,10 @@ int main(int argc, char *argv[]) {
         {"f",      required_argument, 0, 'f'},
         {"g",      required_argument, 0, 'g'},
         {"o",      required_argument, 0, 'o'},
-        {"height", required_argument, 0, 'H'},
-        {"width",  required_argument, 0, 'W'},
-        {"kH",     required_argument, 0, 'a'}, // unique short code for kernel height
-        {"kW",     required_argument, 0, 'b'}, // unique short code for kernel width
+        {"H", required_argument, 0, 'H'},
+        {"W",  required_argument, 0, 'W'},
+        {"kH",     required_argument, 0, 'a'}, 
+        {"kW",     required_argument, 0, 'b'},
         {0, 0, 0, 0}
     };
 
@@ -61,10 +61,19 @@ int main(int argc, char *argv[]) {
 
     out = alloc_2d(H, W);
 
+    // running parallel first
     clock_t start = clock();
     conv2d_parallel(f, H, W, g, kH, kW, out);
     double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+    // running serial second
+    clock_t start_2 = clock();
+    conv2d_serial(f, H, W, g, kH, kW, out);
+    double elapsed_2 = (double)(clock() - start) / CLOCKS_PER_SEC;
+    // printing results
+    printf("Parameters used: H=%d, W=%d, kH=%d, kW=%d\n", H,W,kH,kW);
     printf("Parallel convolution time: %.6fs\n", elapsed);
+    printf("Serial convolution time: %.6fs\n\n", elapsed_2);
+
 
     if (out_file)
         write_matrix(out_file, out, H, W);
