@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
     // running serial second
     clock_t start_2 = clock();
     conv2d_serial(f, H, W, g, kH, kW, out);
-    double elapsed_2 = (double)(clock() - start) / CLOCKS_PER_SEC;
+    double elapsed_2 = (double)(clock() - start_2) / CLOCKS_PER_SEC;
     // printing results
     printf("Parameters used: H=%d, W=%d, kH=%d, kW=%d\n", H,W,kH,kW);
     printf("Parallel convolution time: %.6fs\n", elapsed);
