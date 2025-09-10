@@ -64,15 +64,11 @@ int main(int argc, char *argv[]) {
     double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
     printf("Parallel convolution time: %.6fs\n", elapsed);
 
-    float **out_serial = alloc_2d(H, W);
-    conv2d_serial(f, H, W, g, kH, kW, out_serial);
-
     if (out_file)
         write_matrix(out_file, out, H, W);
 
     free_2d(f, H);
     free_2d(g, kH);
     free_2d(out, H);
-    free_2d(out_serial, H);
     return 0;
 }
