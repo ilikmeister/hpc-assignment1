@@ -44,14 +44,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (f_in && g_in) {
-        read_matrix(f_in, &f, &H, &W);
-        read_matrix(g_in, &g, &kH, &kW);
-    } else if (gen) {
+    if (gen && H > 0 && W > 0 && kH > 0 && kW > 0) {
+        // Random generation mode
         generate_random_matrix(&f, H, W);
         generate_random_matrix(&g, kH, kW);
         if (f_in) write_matrix(f_in, f, H, W);
         if (g_in) write_matrix(g_in, g, kH, kW);
+    } else if (f_in && g_in) {
+        // File input mode
+        read_matrix(f_in, &f, &H, &W);
+        read_matrix(g_in, &g, &kH, &kW);
     } else {
         usage();
         return 1;
