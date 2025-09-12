@@ -11,6 +11,9 @@ void conv2d_serial(float **f, int H, int W, float **g, int kH, int kW, float **o
 // Convolution function for multi-threaded convolution
 void conv2d_parallel(float **f, int H, int W, float **g, int kH, int kW, float **out);
 
+// Advanced optimized parallel convolution with tiling and cache optimization
+void conv2d_parallel_optimized(float **f, int H, int W, float **g, int kH, int kW, float **out);
+
 // Memory management
 float **alloc_2d(int H, int W);      // Allocate 2D float array
 void free_2d(float **arr, int H);    // Free 2D float array

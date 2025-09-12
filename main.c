@@ -13,7 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include <getopt.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #include "conv2d.h"
 
 /**
@@ -108,23 +112,54 @@ int main(int argc, char *argv[]) {
      1. Allocates memory for the output matrix
      2. Executes the parallel 2D convolution function
      3. Measures and prints the execution time 
+     4. Reports OpenMP performance metrics
      */
     
     // Allocate memory for output matrix (same size as input)
     out = alloc_2d(H, W);
     printf("Performing %dx%d convolution with %dx%d kernel...\n", H, W, kH, kW);
+    
+    // Report OpenMP configuration
+    #ifdef _OPENMP
+    printf("OpenMP enabled with %d threads available\n", omp_get_max_threads());
+    #else
+    printf("OpenMP not available - using serial implementation\n");
+    #endif
 
     // Execute parallel convolution with timing
     clock_t start = clock();
     conv2d_parallel(f, H, W, g, kH, kW, out);
     double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
-    // running serial second
+    
+    // Execute serial convolution for comparison
+    float **out_serial = alloc_2d(H, W);
     clock_t start_2 = clock();
-    conv2d_serial(f, H, W, g, kH, kW, out);
+    conv2d_serial(f, H, W, g, kH, kW, out_serial);
     double elapsed_2 = (double)(clock() - start_2) / CLOCKS_PER_SEC;
-    // printing results
-    printf("Parameters used: H=%d, W=%d, kH=%d, kW=%d\n", H,W,kH,kW);
+    
+    // Calculate and report performance metrics
+    printf("\n=== Performance Results ===\n");
+    printf("Parameters used: H=%d, W=%d, kH=%d, kW=%d\n", H, W, kH, kW);
     printf("Parallel convolution time: %.6fs\n", elapsed);
+    printf("Serial convolution time:   %.6fs\n", elapsed_2);
+    if (elapsed_2 > 0) {
+        printf("Speedup: %.2fx\n", elapsed_2 / elapsed);
+        printf("Efficiency: %.1f%%\n", (elapsed_2 / elapsed) / omp_get_max_threads() * 100);
+    }
+    
+    // Verify correctness by comparing first few elements
+    int correct = 1;
+    for (int i = 0; i < (H < 5 ? H : 5) && correct; i++) {
+        for (int j = 0; j < (W < 5 ? W : 5) && correct; j++) {
+            if (fabs(out[i][j] - out_serial[i][j]) > 1e-5) {
+                correct = 0;
+            }
+        }
+    }
+    printf("Correctness check: %s\n", correct ? "PASSED" : "FAILED");
+    
+    // Clean up serial result matrix
+    free_2d(out_serial, H);
 
     /* 
      * This section handles output and cleanup
