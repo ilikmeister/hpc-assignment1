@@ -157,6 +157,6 @@ int main(int argc, char *argv[]) {
     free_2d(g, kH);  
     free_2d(out, H);
 
-    printf("convolution Done\n");
+    printf("convolution Done\n\n");
     return 0;
 }
