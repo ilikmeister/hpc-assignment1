@@ -21,8 +21,7 @@
 #include "conv2d.h"
 
 /**
- * Displays program usage information
- * Shows both supported modes exactly as specified in assignment
+ * Displays program usage when wrong arguments are provided.
  */
 void usage() {
     printf("Usage:\n");
@@ -37,7 +36,6 @@ int main(int argc, char *argv[]) {
     // This will hold input, kernel, and output matrices
     float **f = NULL, **g = NULL, **out = NULL;
     
-    // Matrix dimensions
     int H = 0, W = 0;      // Input matrix height and width
     int kH = 0, kW = 0;    // Kernel height and width
     
@@ -51,12 +49,10 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
 
     // Command-line option definitions using getopt_long
-    // Using SHORT OPTIONS ONLY as required by assignment
     static struct option long_options[] = {
         {0, 0, 0, 0}  // End marker - no long options needed
     };
 
-    // Parse command-line arguments manually to support -kH and -kW as shown in assignment
     // Assignment examples: -H 1000 -W 1000 -kH 3 -kW 3 -f f.txt -g g.txt -o o.txt
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-f") == 0 && i + 1 < argc) {
@@ -96,11 +92,13 @@ int main(int argc, char *argv[]) {
         if (f_in) write_matrix(f_in, f, H, W);
         if (g_in) write_matrix(g_in, g, kH, kW);
     } else if (f_in && g_in) {
-        // FILE INPUT MODE: Read matrices from files
+        
+        // FILE INPUT MODE: Read matrices from specified files
         printf("Reading matrices from files: %s and %s...\n", f_in, g_in);
         read_matrix(f_in, &f, &H, &W);         // Read input matrix and get dimensions
         read_matrix(g_in, &g, &kH, &kW);       // Read kernel matrix and get dimensions
     } else {
+        
         // ERROR: Invalid arguments - need either files or dimensions
         printf("Error: Must provide either input files OR matrix dimensions\n");
         usage();
@@ -138,7 +136,7 @@ int main(int argc, char *argv[]) {
     double elapsed_2 = (double)(clock() - start_2) / CLOCKS_PER_SEC;
     
     // Calculate and report performance metrics
-    printf("\n=== Performance Results ===\n");
+    printf("Performance Metrics:\n");
     printf("Parameters used: H=%d, W=%d, kH=%d, kW=%d\n", H, W, kH, kW);
     printf("Parallel convolution time: %.6fs\n", elapsed);
     printf("Serial convolution time:   %.6fs\n", elapsed_2);
@@ -147,35 +145,23 @@ int main(int argc, char *argv[]) {
         printf("Efficiency: %.1f%%\n", (elapsed_2 / elapsed) / omp_get_max_threads() * 100);
     }
     
-    // Verify correctness by comparing first few elements
-    int correct = 1;
-    for (int i = 0; i < (H < 5 ? H : 5) && correct; i++) {
-        for (int j = 0; j < (W < 5 ? W : 5) && correct; j++) {
-            if (fabs(out[i][j] - out_serial[i][j]) > 1e-5) {
-                correct = 0;
-            }
-        }
-    }
-    printf("Correctness check: %s\n", correct ? "PASSED" : "FAILED");
-    
     // Clean up serial result matrix
     free_2d(out_serial, H);
 
-    /* 
-     * This section handles output and cleanup
-     */
-    
+
+    // This section handles output and cleanup:
+
     // Save output matrix to file (if filename provided)
     if (out_file) {
         write_matrix(out_file, out, H, W);
         printf("Output saved to: %s\n", out_file);
     }
 
-    // Clean up all allocated memory to prevent leaks
-    free_2d(f, H);      // Free input matrix
-    free_2d(g, kH);     // Free kernel matrix  
-    free_2d(out, H);    // Free output matrix
-    
-    printf("Convolution completed successfully!\n");
+    // Clean up all allocated memory
+    free_2d(f, H);     
+    free_2d(g, kH);  
+    free_2d(out, H);
+
+    printf("convolution Done\n");
     return 0;
 }

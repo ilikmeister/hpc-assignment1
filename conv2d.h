@@ -1,9 +1,6 @@
 #ifndef CONV2D_H
 #define CONV2D_H
-
-/* 
- * This is a header file for 2D convolution operations with both serial and parallel implementations
- */
+// This is a header file for 2D convolution operations with both serial and parallel implementations
 
 // Convolution function for single threaded convolution
 void conv2d_serial(float **f, int H, int W, float **g, int kH, int kW, float **out);
