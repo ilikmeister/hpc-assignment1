@@ -48,11 +48,6 @@ int main(int argc, char *argv[]) {
     // Seed random number generator for reproducible results during development
     srand(time(NULL));
 
-    // Command-line option definitions using getopt_long
-    static struct option long_options[] = {
-        {0, 0, 0, 0}  // End marker - no long options needed
-    };
-
     // Assignment examples: -H 1000 -W 1000 -kH 3 -kW 3 -f f.txt -g g.txt -o o.txt
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-f") == 0 && i + 1 < argc) {
