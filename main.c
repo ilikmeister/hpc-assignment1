@@ -129,15 +129,20 @@ int main(int argc, char *argv[]) {
     clock_t start_2 = clock();
     conv2d_serial(f, H, W, g, kH, kW, out_serial);
     double elapsed_2 = (double)(clock() - start_2) / CLOCKS_PER_SEC;
-    
+
     // Calculate and report performance metrics
     printf("Performance Metrics:\n");
     printf("Parameters used: H=%d, W=%d, kH=%d, kW=%d\n", H, W, kH, kW);
     printf("Parallel convolution time: %.6fs\n", elapsed);
     printf("Serial convolution time:   %.6fs\n", elapsed_2);
     if (elapsed_2 > 0) {
-        printf("Speedup: %.2fx\n", elapsed_2 / elapsed);
-        printf("Efficiency: %.1f%%\n", (elapsed_2 / elapsed) / omp_get_max_threads() * 100);
+        double speedup = elapsed_2 / elapsed;
+        printf("Speedup: %.2fx\n", speedup);
+        if (speedup >= 1.0) {
+            printf("Efficiency: %.1f%%\n", speedup / omp_get_max_threads() * 100);
+        } else {
+            printf("Efficiency: No speedup achieved (%.1fx slowdown)\n", 1.0 / speedup);
+        }
     }
     
     // Clean up serial result matrix
