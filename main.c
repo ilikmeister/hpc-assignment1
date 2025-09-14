@@ -120,15 +120,15 @@ int main(int argc, char *argv[]) {
     #endif
 
     // Execute parallel convolution with timing
-    clock_t start = clock();
+    double start = omp_get_wtime();
     conv2d_parallel(f, H, W, g, kH, kW, out);
-    double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+    double elapsed = (double)(omp_get_wtime() - start);
     
     // Execute serial convolution for comparison
     float **out_serial = alloc_2d(H, W);
-    clock_t start_2 = clock();
+    double start_2 = omp_get_wtime();
     conv2d_serial(f, H, W, g, kH, kW, out_serial);
-    double elapsed_2 = (double)(clock() - start_2) / CLOCKS_PER_SEC;
+    double elapsed_2 = (double)(omp_get_wtime() - start_2);
 
     // Calculate and report performance metrics
     printf("Performance Metrics:\n");
