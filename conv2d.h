@@ -1,3 +1,8 @@
+// This code was created for Assignment 1 - CITS5507
+// Authours:
+// Sarthak Saini - 24110857
+// Iliyas Akhmet - 24038357
+
 #ifndef CONV2D_H
 #define CONV2D_H
 // This is a header file for 2D convolution operations with both serial and parallel implementations

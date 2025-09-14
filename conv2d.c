@@ -1,11 +1,7 @@
-/* 
- * This .c file implements both serial and parallel convolution functions as declared in conv2d.h along with supporting utilities for memory management, padding, and file I/O.
- * Features:
- *  -> Serial and OpenMP parallel convolution implementations.
- *  -> Padding strategy of symmetric for odd kernels while asymmetric for even kernels.
- *  -> Complete matrix I/O and memory management utilities.
- *  -> Support for arbitrary matrix and kernel sizes.
- */
+// This code was created for Assignment 1 - CITS5507
+// Authours:
+// Sarthak Saini - 24110857
+// Iliyas Akhmet - 24038357
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,10 +9,7 @@
 #include <omp.h>
 #include "conv2d.h"
 
-
-/**
- * This function allocates memory for a 2D float array and uses calloc to initialize all values to 0.0
- */
+// This function allocates memory for a 2D float array and uses calloc to initialize all values to 0.0
 float **alloc_2d(int H, int W) {
     // Allocate array of row pointers
     float **arr = malloc(H * sizeof(float *));  
@@ -26,9 +19,8 @@ float **alloc_2d(int H, int W) {
     return arr;
 }
 
-/**
- * This function frees memory allocated for a 2D float array and is helpful when called to prevent memory leaks
- */
+
+// This function frees memory allocated for a 2D float array and is helpful when called to prevent memory leaks
 void free_2d(float **arr, int H) {
     for (int i = 0; i < H; i++)
         free(arr[i]);    // Free each row
@@ -36,12 +28,7 @@ void free_2d(float **arr, int H) {
     free(arr);
 }
 
-// The following section contains file I/O functions for reading/writing matrices and generating random matrices
-
-/**
- * This function reads a matrix from a text file
- * @param first line contains "height width", followed by matrix data
- */
+// This function reads a matrix from a text file
 void read_matrix(const char *filename, float ***arr, int *H, int *W) {
     FILE *f = fopen(filename, "r");
     // Read dimensions
@@ -55,10 +42,7 @@ void read_matrix(const char *filename, float ***arr, int *H, int *W) {
     fclose(f);
 }
 
-/**
- *  This function writes a matrix to a text file
- * @param first line contains "height width", followed by matrix data.
- */
+// This function writes a matrix to a text file
 void write_matrix(const char *filename, float **arr, int H, int W) {
     FILE *f = fopen(filename, "w");
     fprintf(f, "%d %d\n", H, W); 
@@ -75,9 +59,7 @@ void write_matrix(const char *filename, float **arr, int H, int W) {
     fclose(f);
 }
 
-/**
- * This function generates a matrix filled with random float values
- */
+// This function generates a matrix filled with random float values
 void generate_random_matrix(float ***arr, int H, int W) {
     *arr = alloc_2d(H, W);              // Allocate memory
     for (int i = 0; i < H; i++)
@@ -85,12 +67,7 @@ void generate_random_matrix(float ***arr, int H, int W) {
             (*arr)[i][j] = (float)rand() / RAND_MAX;  // Random value [0.0, 1.0]
 }
 
-// Padding functions for symmetric and asymmetric padding
-
-/**
- *  This function applies symmetric padding to input matrix
- * Pads equally on all sides to make sure the output size is equal to the input size
- */
+// This function applies symmetric padding to input matrix
 void pad_input(float **f, int H, int W, float **fp, int padH, int padW) {
     // Initialize padded matrix with zeros
     for (int i = 0; i < H + 2 * padH; i++)
@@ -103,14 +80,7 @@ void pad_input(float **f, int H, int W, float **fp, int padH, int padW) {
             fp[i + padH][j + padW] = f[i][j];
 }
 
-/**
- * This function applies asymmetric padding to input matrix
- * Different padding amounts on each side to handle even kernel dimensions
- * 
- * For even kernels, we use bottom-right bias:
- * - padTop = 0, padBottom = kH - 1
- * - padLeft = 0, padRight = kW - 1
- */
+// This function applies asymmetric padding to input matrix
 void pad_input_asymmetric(float **f, int H, int W, float **fp, int padTop, int padBottom, int padLeft, int padRight) {
     // Initialize padded matrix with zeros
     for (int i = 0; i < H + padTop + padBottom; i++)
@@ -123,10 +93,7 @@ void pad_input_asymmetric(float **f, int H, int W, float **fp, int padTop, int p
             fp[i + padTop][j + padLeft] = f[i][j];
 }
 
-// 2D Convolution functions (serial and parallel versions)
-/**
- * This function performs 2D convolution using single-threaded execution
- */
+// This function performs 2D convolution using single-threaded execution
 void conv2d_serial(float **f, int H, int W, float **g, int kH, int kW, float **out) {
     if (kH % 2 == 1 && kW % 2 == 1) {
         // If there is ODD KERNEL it uses symmetric padding for centered convolution

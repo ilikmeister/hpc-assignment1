@@ -1,3 +1,8 @@
+# This makefile was created for Assignment 1 - CITS5507
+# Authours:
+# Sarthak Saini - 24110857
+# Iliyas Akhmet - 24038357
+
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -std=c99 -O2 -fopenmp    # Standard OpenMP on GCC

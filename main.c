@@ -1,13 +1,7 @@
-/* 
- * This is the main driver program for testing 2D convolution implementations.
- * It supports two operation modes:
- * 
- * 1. FILE INPUT MODE: Read matrices from files and perform convolution
- *    Usage: ./conv_test -f input.txt -g kernel.txt -o output.txt
- * 
- * 2. RANDOM GENERATION MODE: Generate random matrices and perform convolution  
- *    Usage: ./conv_test -H 1000 -W 1000 -kH 3 -kW 3 [-f f.txt] [-g g.txt] [-o o.txt]
- */
+// This code was created for Assignment 1 - CITS5507
+// Authours:
+// Sarthak Saini - 24110857
+// Iliyas Akhmet - 24038357
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,31 +14,28 @@
 #endif
 #include "conv2d.h"
 
-/**
- * Displays program usage when wrong arguments are provided.
- */
+
+// Displays program usage when wrong arguments are provided.
 void usage() {
     printf("Usage:\n");
     printf("./conv_test -f infile -g kernel -o outfile\n");
     printf("./conv_test -H height -W width -kH kernel_height -kW kernel_width [-f infile] [-g kernel] [-o outfile]\n");
 }
 
-/**
- * This main program handles command-line arguments, matrix operations, and convolution execution
- */
+// This main program handles command-line arguments, matrix operations, and convolution execution
 int main(int argc, char *argv[]) {
     // This will hold input, kernel, and output matrices
     float **f = NULL, **g = NULL, **out = NULL;
-    
+
     int H = 0, W = 0;      // Input matrix height and width
     int kH = 0, kW = 0;    // Kernel height and width
-    
+
     // File paths for input/output (optional)
     char *f_in = NULL, *g_in = NULL, *out_file = NULL;
-    
+
     // Flag to indicate random generation mode
     int gen = 0;
-    
+
     // Seed random number generator for reproducible results during development
     srand(time(NULL));
 
@@ -66,52 +57,38 @@ int main(int argc, char *argv[]) {
             kW = atoi(argv[++i]); gen = 1;
         } else {
             printf("Unknown option: %s\n", argv[i]);
-            usage(); 
+            usage();
             return 1;
         }
     }
 
-    /*
-     * This code implements matrix initialization with two modes:
-     1. Random generation mode: Create matrices with specified dimensions
-     2. File input mode: Read matrices from provided files
-     */
-    
     if (gen && H > 0 && W > 0 && kH > 0 && kW > 0) {
         // RANDOM GENERATION MODE: Create matrices with random values
         printf("Generating random %dx%d input matrix and %dx%d kernel...\n", H, W, kH, kW);
         generate_random_matrix(&f, H, W);      // Create random input matrix
         generate_random_matrix(&g, kH, kW);    // Create random kernel matrix
-        
+
         // Optionally save generated matrices to files (if filenames provided)
         if (f_in) write_matrix(f_in, f, H, W);
         if (g_in) write_matrix(g_in, g, kH, kW);
     } else if (f_in && g_in) {
-        
+
         // FILE INPUT MODE: Read matrices from specified files
         printf("Reading matrices from files: %s and %s...\n", f_in, g_in);
         read_matrix(f_in, &f, &H, &W);         // Read input matrix and get dimensions
         read_matrix(g_in, &g, &kH, &kW);       // Read kernel matrix and get dimensions
     } else {
-        
+
         // ERROR: Invalid arguments - need either files or dimensions
         printf("Error: Must provide either input files OR matrix dimensions\n");
         usage();
         return 1;
     }
 
-    /*
-    This section performs the core convolution operation:
-     1. Allocates memory for the output matrix
-     2. Executes the parallel 2D convolution function
-     3. Measures and prints the execution time 
-     4. Reports OpenMP performance metrics
-     */
-    
     // Allocate memory for output matrix (same size as input)
     out = alloc_2d(H, W);
     printf("Performing %dx%d convolution with %dx%d kernel...\n", H, W, kH, kW);
-    
+
     // Report OpenMP configuration
     #ifdef _OPENMP
     printf("OpenMP enabled with %d threads available\n", omp_get_max_threads());
@@ -123,7 +100,7 @@ int main(int argc, char *argv[]) {
     double start = omp_get_wtime();
     conv2d_parallel(f, H, W, g, kH, kW, out);
     double elapsed = (double)(omp_get_wtime() - start);
-    
+
     // Execute serial convolution for comparison
     float **out_serial = alloc_2d(H, W);
     double start_2 = omp_get_wtime();
@@ -144,7 +121,7 @@ int main(int argc, char *argv[]) {
             printf("Efficiency: No speedup achieved (%.1fx slowdown)\n", 1.0 / speedup);
         }
     }
-    
+
     // Clean up serial result matrix
     free_2d(out_serial, H);
 
@@ -158,8 +135,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Clean up all allocated memory
-    free_2d(f, H);     
-    free_2d(g, kH);  
+    free_2d(f, H);
+    free_2d(g, kH);
     free_2d(out, H);
 
     printf("convolution Done\n\n");

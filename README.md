@@ -12,8 +12,8 @@ It supports two modes:
 
 - `Makefile` – For building the project on Kaya.
 - `main.c` – Main driver program.
-- `conv2d.c`, `conv2d.h` – convolution implementation.
-- `test-files/` – Example/test input files.
+- `conv2d.c`  – convolution implementation.
+- `conv2d.h` – header file.
 - `script.slurm` – Example SLURM batch script for Kaya.
 
 ## Compilation
@@ -86,5 +86,4 @@ make clean
 **Authors:**  
 
 - Sarthak Saini - 24110857
-
 - Iliyas Akhmet - 24038357
